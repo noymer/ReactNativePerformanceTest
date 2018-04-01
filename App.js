@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 
 let itemid = 1
-class Item extends PureComponent {
+class Item extends Component {
   itemid
 
   constructor(props) {
@@ -26,7 +26,32 @@ class Item extends PureComponent {
   render() {
     const id = this.props.id
 
-    console.log('pure nokey itemid:' + this.itemid + ' id:' + id)
+    console.log('not pure itemid:' + this.itemid + ' id:' + id)
+    return (
+      <View>
+        <Text>{id}</Text>
+        {/*
+        <Text>ここがすごい複雑の場合はどうなるの？\nこんな感じだったらおかしいのかな？</Text>
+        <Text>じゅげむここがすごい複雑の場合はどうなるの？\nこんな感じだったらおかしいのかな？</Text>
+        <Text>ここがaaaすごい複雑の場合はどうなるの？\nこんな感じだったらおかしいのかな？</Text>
+        */}
+      </View>
+    )
+  }
+}
+
+class PureItem extends PureComponent {
+  itemid
+
+  constructor(props) {
+    super(props)
+    this.itemid = itemid
+    itemid++
+  }
+  render() {
+    const id = this.props.id
+
+    console.log('pure itemid:' + this.itemid + ' id:' + id)
     return (
       <View>
         <Text>{id}</Text>
@@ -49,6 +74,7 @@ export default class App extends Component {
     super(props)
     this.state = {
       keyIsOn: true,
+      isPure: true,
       ids: [1,2,3],
     }
   }
@@ -56,6 +82,12 @@ export default class App extends Component {
   toggleKey = () => {
     this.setState({
       keyIsOn: !this.state.keyIsOn,
+    })
+  }
+
+  togglePure = () => {
+    this.setState({
+      isPure: !this.state.isPure,
     })
   }
 
@@ -112,6 +144,10 @@ export default class App extends Component {
           onPress={this.toggleKey}
           title={this.state.keyIsOn ? 'キーを無効化' : 'キーを有効化'}
         />
+        <Button
+          onPress={this.togglePure}
+          title={this.state.isPure ? 'PureComponentを使わない' : 'PureComponentを利用'}
+        />
         <TouchableOpacity
           onPress={this.handlePress}
         >
@@ -119,10 +155,18 @@ export default class App extends Component {
         </TouchableOpacity>
         <ScrollView>
           {this.state.ids.map((id) => {
-            if (this.state.keyIsOn) {
-              return <Item id={id} key={id}/>
-            }
-              return <Item id={id}/>
+            const props = this.state.keyIsOn
+              ? {
+                id: id,
+                key: id,
+              }
+              : {
+                id: id,
+              }
+            
+            const Renderer = this.state.isPure ? PureItem : Item
+
+            return <Renderer {...props}/>
           })}
         </ScrollView>
       </View>
